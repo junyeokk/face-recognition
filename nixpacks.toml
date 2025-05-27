@@ -3,6 +3,8 @@ nixPkgs = [
   "nodejs",
   "python3",
   "python3Packages.pip",
+  "python3Packages.setuptools",
+  "python3Packages.wheel",
   "python3Packages.numpy",
   "python3Packages.pillow",
   "pkg-config",
@@ -17,6 +19,8 @@ nixPkgs = [
 
 [phases.install]
 cmds = [
+  "python3 -m ensurepip --upgrade",
+  "python3 -m pip install --upgrade pip",
   "python3 -m pip install --user opencv-python-headless",
   "python3 -c 'import cv2; print(\"OpenCV version:\", cv2.__version__)'",
   "npm install",
