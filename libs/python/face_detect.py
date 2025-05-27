@@ -2,41 +2,48 @@
 import sys
 import json
 import base64
-import io
-from PIL import Image
-import face_recognition
+import cv2
 import numpy as np
+from PIL import Image
+import io
 
-def detect_faces_from_base64(base64_string):
-    """
-    Base64 인코딩된 이미지에서 얼굴을 감지합니다.
-    
-    Args:
-        base64_string (str): Base64로 인코딩된 이미지 데이터
-        
-    Returns:
-        dict: 얼굴 감지 결과
-    """
+def detect_faces(image_data):
     try:
-        if base64_string.startswith('data:image'):
-            base64_string = base64_string.split(',')[1]
+        # Base64 데이터에서 이미지 디코딩
+        if image_data.startswith('data:image'):
+            image_data = image_data.split(',')[1]
         
-        image_data = base64.b64decode(base64_string)
+        image_bytes = base64.b64decode(image_data)
+        image = Image.open(io.BytesIO(image_bytes))
         
-        image = Image.open(io.BytesIO(image_data))
+        # PIL 이미지를 OpenCV 형식으로 변환
+        opencv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
+        # OpenCV의 Haar Cascade 분류기 사용
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         
-        image_array = np.array(image)
+        # 그레이스케일로 변환
+        gray = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
         
-        face_locations = face_recognition.face_locations(image_array)
+        # 얼굴 검출
+        faces = face_cascade.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(30, 30)
+        )
+        
+        # 결과 포맷팅
+        face_locations = []
+        for (x, y, w, h) in faces:
+            # OpenCV 좌표를 face_recognition 형식으로 변환 (top, right, bottom, left)
+            face_locations.append([y, x + w, y + h, x])
         
         result = {
             "success": True,
-            "faces_detected": len(face_locations),
+            "faces_detected": len(faces),
             "face_locations": face_locations,
-            "message": f"{len(face_locations)}개의 얼굴이 감지되었습니다." if len(face_locations) > 0 else "얼굴이 감지되지 않았습니다."
+            "message": f"{len(faces)}개의 얼굴이 감지되었습니다." if len(faces) > 0 else "얼굴이 감지되지 않았습니다."
         }
         
         return result
@@ -46,26 +53,21 @@ def detect_faces_from_base64(base64_string):
             "success": False,
             "faces_detected": 0,
             "face_locations": [],
-            "error": str(e),
-            "message": "얼굴 감지 중 오류가 발생했습니다."
+            "message": "얼굴 인식 중 오류가 발생했습니다.",
+            "error": str(e)
         }
 
-def main():
-    """
-    메인 함수: 명령행 인자로 받은 Base64 이미지를 처리합니다.
-    """
+if __name__ == "__main__":
     if len(sys.argv) != 2:
         print(json.dumps({
             "success": False,
-            "error": "Base64 이미지 데이터가 필요합니다.",
-            "message": "사용법: python face_detect.py <base64_image_data>"
+            "faces_detected": 0,
+            "face_locations": [],
+            "message": "이미지 데이터가 필요합니다.",
+            "error": "Image data argument required"
         }))
         sys.exit(1)
     
-    base64_image = sys.argv[1]
-    result = detect_faces_from_base64(base64_image)
-    
-    print(json.dumps(result, ensure_ascii=False))
-
-if __name__ == "__main__":
-    main() 
+    image_data = sys.argv[1]
+    result = detect_faces(image_data)
+    print(json.dumps(result)) 
