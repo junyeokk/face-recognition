@@ -157,11 +157,23 @@ app.listen(PORT, () => {
     "python",
     "/usr/bin/python3",
     "/usr/local/bin/python3",
+    "/nix/store/*/bin/python3",
+    "/opt/python/bin/python3",
   ];
 
   function checkPython(commandIndex) {
     if (commandIndex >= pythonCommands.length) {
       console.log("❌ No Python interpreter found");
+
+      // which 명령어로 python 경로 찾기 시도
+      const whichProcess = spawn("which", ["python3"]);
+      whichProcess.stdout.on("data", (data) => {
+        console.log(`Found Python via which: ${data.toString().trim()}`);
+      });
+      whichProcess.on("error", () => {
+        console.log("which command also failed");
+      });
+
       return;
     }
 
