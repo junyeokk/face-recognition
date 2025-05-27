@@ -7,6 +7,7 @@ nixPkgs = [
   "python3Packages.wheel",
   "python3Packages.numpy",
   "python3Packages.pillow",
+  "python3Packages.opencv4",
   "pkg-config",
   "cmake",
   "gcc",
@@ -19,9 +20,6 @@ nixPkgs = [
 
 [phases.install]
 cmds = [
-  "curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py",
-  "python3 get-pip.py --user",
-  "$HOME/.local/bin/pip install --user opencv-python-headless",
   "npm install",
   "npm run build"
 ]
@@ -33,5 +31,4 @@ cmds = ["echo 'Build completed'"]
 cmd = "npm start"
 
 [variables]
-PYTHONPATH = "/root/.local/lib/python3.12/site-packages:/nix/store/*/lib/python3.12/site-packages"
-OPENCV_HEADLESS = "1" 
+PYTHONPATH = "/nix/store/*/lib/python3.12/site-packages"
