@@ -2,7 +2,6 @@
 nixPkgs = [
   "nodejs", 
   "python3", 
-  "python3Packages.pip",
   "python3Packages.opencv4",
   "python3Packages.numpy", 
   "python3Packages.pillow"
@@ -10,6 +9,7 @@ nixPkgs = [
 
 [phases.install]
 cmds = [
+  "python3 -c 'import numpy, PIL; print(\"Python packages imported successfully\")'",
   "npm install",
   "npm run build"
 ]
