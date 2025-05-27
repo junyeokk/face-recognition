@@ -4,13 +4,14 @@ const { spawn } = require("child_process");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // 미들웨어 설정
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
-// 얼굴 인식 API 엔드포인트
+app.use(express.static(path.join(__dirname, "apps/web/dist")));
+
 app.post("/api/recognize-face", async (req, res) => {
   try {
     const { imageData } = req.body;
@@ -25,7 +26,6 @@ app.post("/api/recognize-face", async (req, res) => {
       });
     }
 
-    // Python 스크립트 실행
     const result = await runPythonScript(imageData);
 
     res.status(200).json(result);
@@ -39,6 +39,10 @@ app.post("/api/recognize-face", async (req, res) => {
       error: error.message,
     });
   }
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "apps/web/dist/index.html"));
 });
 
 function runPythonScript(imageData) {
@@ -83,7 +87,7 @@ function runPythonScript(imageData) {
 }
 
 app.listen(PORT, () => {
-  console.log(`🚀 API 서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
+  console.log(`🚀 서버가 포트 ${PORT}에서 실행 중입니다.`);
 });
 
 module.exports = app;
