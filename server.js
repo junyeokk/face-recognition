@@ -84,6 +84,7 @@ function runPythonScript(imageData) {
       const pythonProcess = spawn(pythonCmd, [scriptPath, imageData], {
         env: {
           ...process.env,
+          PYTHONPATH: process.env.PYTHONPATH || "/nix/store",
         },
       });
 
