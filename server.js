@@ -81,7 +81,11 @@ function runPythonScript(imageData) {
       console.log(`Trying Python command: ${pythonCmd}`);
 
       // Python 프로세스 실행
-      const pythonProcess = spawn(pythonCmd, [scriptPath, imageData]);
+      const pythonProcess = spawn(pythonCmd, [scriptPath, imageData], {
+        env: {
+          ...process.env,
+        },
+      });
 
       let stdout = "";
       let stderr = "";
