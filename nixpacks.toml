@@ -2,14 +2,24 @@
 nixPkgs = [
   "nodejs", 
   "python3", 
+  "python3Packages.pip",
   "python3Packages.opencv4",
   "python3Packages.numpy", 
-  "python3Packages.pillow"
+  "python3Packages.pillow",
+  "opencv",
+  "pkg-config",
+  "cmake",
+  "gcc",
+  "libGL",
+  "libGLU",
+  "xorg.libX11",
+  "xorg.libXext",
+  "xorg.libXrender"
 ]
 
 [phases.install]
 cmds = [
-  "python3 -c 'import numpy, PIL; print(\"Python packages imported successfully\")'",
+  "python3 -c 'import cv2; print(\"OpenCV version:\", cv2.__version__)'",
   "npm install",
   "npm run build"
 ]
@@ -18,4 +28,7 @@ cmds = [
 cmds = ["echo 'Build completed'"]
 
 [start]
-cmd = "npm start" 
+cmd = "npm start"
+
+[variables]
+PYTHONPATH = "/nix/store/*/lib/python3.12/site-packages" 

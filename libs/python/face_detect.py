@@ -2,10 +2,20 @@
 import sys
 import json
 import base64
-import cv2
+import os
 import numpy as np
 from PIL import Image
 import io
+
+# OpenCV 로드 시도
+try:
+    import cv2
+    print("OpenCV successfully imported:", cv2.__version__)
+except ImportError as e:
+    print("Error importing OpenCV:", str(e))
+    print("Python path:", sys.path)
+    print("Current directory:", os.getcwd())
+    raise
 
 def detect_faces(image_data):
     try:
@@ -20,7 +30,13 @@ def detect_faces(image_data):
         opencv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         
         # OpenCV의 Haar Cascade 분류기 사용
-        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        cascade_path = os.path.join(cv2.data.haarcascades, 'haarcascade_frontalface_default.xml')
+        if not os.path.exists(cascade_path):
+            print("Cascade file not found at:", cascade_path)
+            print("Available files in haarcascades:", os.listdir(cv2.data.haarcascades))
+            raise FileNotFoundError(f"Cascade file not found: {cascade_path}")
+            
+        face_cascade = cv2.CascadeClassifier(cascade_path)
         
         # 그레이스케일로 변환
         gray = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
@@ -36,7 +52,6 @@ def detect_faces(image_data):
         # 결과 포맷팅
         face_locations = []
         for (x, y, w, h) in faces:
-            # OpenCV 좌표를 face_recognition 형식으로 변환 (top, right, bottom, left)
             face_locations.append([y, x + w, y + h, x])
         
         result = {
@@ -49,6 +64,9 @@ def detect_faces(image_data):
         return result
         
     except Exception as e:
+        print("Error in detect_faces:", str(e))
+        print("Python path:", sys.path)
+        print("Current directory:", os.getcwd())
         return {
             "success": False,
             "faces_detected": 0,
