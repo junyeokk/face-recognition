@@ -9,6 +9,7 @@ import io
 
 # OpenCV 로드 시도
 try:
+    os.environ['OPENCV_HEADLESS'] = '1'
     import cv2
     print("OpenCV successfully imported:", cv2.__version__)
 except ImportError as e:
@@ -29,14 +30,28 @@ def detect_faces(image_data):
         # PIL 이미지를 OpenCV 형식으로 변환
         opencv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         
-        # OpenCV의 Haar Cascade 분류기 사용
-        cascade_path = os.path.join(cv2.data.haarcascades, 'haarcascade_frontalface_default.xml')
-        if not os.path.exists(cascade_path):
-            print("Cascade file not found at:", cascade_path)
-            print("Available files in haarcascades:", os.listdir(cv2.data.haarcascades))
-            raise FileNotFoundError(f"Cascade file not found: {cascade_path}")
+        # Haar Cascade 파일 경로 찾기
+        cascade_file = 'haarcascade_frontalface_default.xml'
+        cascade_paths = [
+            os.path.join(cv2.data.haarcascades, cascade_file),
+            os.path.join(os.path.dirname(__file__), cascade_file),
+            os.path.join('/usr/local/share/opencv4/haarcascades', cascade_file),
+            os.path.join('/usr/share/opencv4/haarcascades', cascade_file),
+        ]
+        
+        cascade_path = None
+        for path in cascade_paths:
+            if os.path.exists(path):
+                cascade_path = path
+                print(f"Found cascade file at: {path}")
+                break
+                
+        if cascade_path is None:
+            raise FileNotFoundError(f"Cascade file not found in any of: {cascade_paths}")
             
         face_cascade = cv2.CascadeClassifier(cascade_path)
+        if face_cascade.empty():
+            raise ValueError("Failed to load cascade classifier")
         
         # 그레이스케일로 변환
         gray = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2GRAY)
