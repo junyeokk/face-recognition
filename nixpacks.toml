@@ -1,9 +1,15 @@
 [phases.setup]
-nixPkgs = ["nodejs", "python3", "python3Packages.pip"]
+nixPkgs = [
+  "nodejs", 
+  "python3", 
+  "python3Packages.pip",
+  "python3Packages.opencv4",
+  "python3Packages.numpy", 
+  "python3Packages.pillow"
+]
 
 [phases.install]
 cmds = [
-  "pip install -r requirements.txt",
   "npm install",
   "npm run build"
 ]
