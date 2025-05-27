@@ -44,7 +44,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const result = await runPythonScript(imageData);
-
     res.status(200).json(result);
   } catch (error) {
     console.error("Face recognition error:", error);
@@ -60,12 +59,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 function runPythonScript(imageData: string): Promise<FaceDetectionResult> {
   return new Promise((resolve, reject) => {
-    const scriptPath = path.join(
-      process.cwd(),
-      "libs",
-      "python",
-      "face_detect.py"
-    );
+    const scriptPath = path.join(__dirname, "face_detect.py");
 
     const pythonProcess = spawn("python3", [scriptPath, imageData]);
 
