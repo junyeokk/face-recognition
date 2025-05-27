@@ -1,0 +1,29 @@
+{
+  "name": "face-recognition-app",
+  "version": "1.0.0",
+  "description": "AI 얼굴 인식 웹 서비스",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "web": "cd apps/web && npm run dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run web\""
+  },
+  "dependencies": {
+    "@vercel/node": "^5.1.16",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "face-recognition",
+    "ai",
+    "react",
+    "python",
+    "vercel"
+  ],
+  "author": "",
+  "license": "MIT"
+}
